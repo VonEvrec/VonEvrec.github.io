@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VonEvrec</title>
+    <link rel="icon" href="lunettesofcreation.jpg" type="image/jpeg" />
+    <style>
+      @font-face {
+        font-family: 'pgLang Roman';
+        src: url('/fonts/PgLang.woff2') format('woff2'), url('/fonts/PgLang.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      :root {
+        --bg-color: #dddddd;
+        --text-color: #111111;
+        --date-color: #777777;
+        --footer-color: #dddddd;
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body {
+        font-family: 'Time';
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        letter-spacing: -0.02em;
+        line-height: 1.4;
+        user-select: none; /* Empêche la sélection du texte */
+        -webkit-user-select: none;
+        overflow-x: hidden;
+      }
+
+      /* Header container pour aligner le logo et les boutons sociaux */
+      .header-container {
+        position: relative;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 45px 0 25px;
+      }
+
+      .logo-top {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: padding 0.3s ease;
+      }
+
+      .logo-top img {
+        max-width: 50px;
+        height: auto;
+        opacity: 0.92;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .logo-top:hover img {
+        transform: rotate(3deg) scale(1.03);
+      }
+
+      /* Style pour les boutons sociaux */
+      .social-links {
+        position: absolute;
+        top: 45px;
+        right: 25px;
+        display: flex;
+        gap: 15px;
+      }
+
+      .social-links a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.05);
+        color: var(--text-color);
+        text-decoration: none;
+        font-size: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity: 0.7;
+      }
+
+      .social-links a:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+        opacity: 1;
+      }
+
+      .main-content {
+        display: flex;
+        flex-grow: 1;
+        width: 100%;
+        padding: 0; /* Supprimé padding */
+        box-sizing: border-box;
+      }
+
+      .news-list {
+        display: flex;
+        flex-direction: column;
+        gap: 18px; /* Espacements très resserrés */
+        width: 100%;
+        max-width: 940px; /* Augmenté pour permettre un format plus large */
+        margin-bottom: 30px;
+        margin-left: 25px; /* Ajoute un peu d'espace à gauche */
+      }
+
+      .news-item {
+        position: relative;
+        cursor: default;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .news-header {
+        display: flex;
+        align-items: baseline;
+        gap: 100px; /* Grand espacement entre date et titre */
+        position: relative;
+        z-index: 1;
+      }
+
+      .date {
+        font-family: 'Neue Montreal', sans-serif;
+        font-size: 0.68rem;
+        color: var(--date-color);
+        font-weight: normal;
+        min-width: 70px;
+        flex-shrink: 0;
+        transition: color 0.3s ease;
+        letter-spacing: 0.04em;
+        opacity: 0.9;
+      }
+
+      .news-item:hover .date {
+        color: var(--text-color);
+      }
+
+      .title a {
+        font-size: 0.82rem;
+        font-weight: normal;
+        color: var(--text-color);
+        text-decoration: none;
+        cursor: pointer;
+        letter-spacing: -0.01em;
+        position: relative;
+        transition: opacity 0.3s ease;
+      }
+
+      .title a::before {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 100%;
+        height: 0.5px;
+        background-color: var(--text-color);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity: 0.7;
+      }
+
+      .title a:hover::before {
+        transform: scaleX(1);
+      }
+
+      .content-wrapper {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .content {
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: translateY(-5px);
+        pointer-events: none;
+        margin-left: 170px; /* Aligner avec les titres */
+        position: relative;
+        z-index: 0;
+        width: calc(100% - 170px); /* Largeur adaptée en prenant en compte le décalage */
+      }
+
+      .content.open {
+        max-height: 1000px;
+        opacity: 1;
+        transform: translateY(0);
+        margin-top: 15px;
+        margin-bottom: 15px;
+        pointer-events: auto;
+      }
+
+      .content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.03);
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      .content iframe,
+      .content img {
+        width: 100%;
+        max-width: 100%;
+        border: none;
+        height: auto;
+        opacity: 0.97;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      /* FORMAT 16:9 POUR LES VIDÉOS (plus adapté pour PC) */
+      .content iframe {
+        aspect-ratio: 16 / 10;
+        height: auto;
+        max-height: 70vh; /* limite la hauteur de la vidéo à 70% de la hauteur de l'écran */
+      }
+
+      .content p {
+        margin: 0;
+        font-size: 0.78rem;
+        color: var(--text-color);
+        opacity: 0.85;
+        font-weight: 300;
+      }
+
+      footer {
+        text-align: center;
+        padding: 25px 20px;
+        font-size: 0.72rem;
+        color: var(--date-color);
+        background-color: var(--footer-color);
+        letter-spacing: 0.03em;
+        position: relative;
+        margin-top: auto;
+      }
+
+      @media (max-width: 768px) {
+        .header-container {
+          padding: 35px 0 25px;
+        }
+        
+        .social-links {
+          top: 35px;
+          right: 20px;
+        }
+        
+        .content {
+          margin-left: 95px; /* Moins de marge pour tablette */
+          width: calc(100% - 95px);
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .news-header {
+          flex-direction: column;
+          gap: 6px;
+        }
+        
+        .date {
+          opacity: 0.8;
+        }
+        
+        .content {
+          margin-left: 0;
+          width: 100%;
+        }
+        
+        .content.open {
+          margin-top: 12px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="header-container">
+      <div class="logo-top">
+        <img src="lunettesofcreation.jpg" alt="VonEvrec Logo" />
+      </div>
+      <div class="social-links">
+        <a href="https://instagram.com/vonevrec" target="_blank" title="Instagram">IG</a>
+        <a href="https://x.com/vonevrec" target="_blank" title="X (Twitter)">X</a>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="news-list">
+
+        <div class="news-item">
+          <div class="news-header">
+            <div class="date">10-04-25</div>
+            <div class="title">
+              <span style="text-decoration: line-through; cursor: default; opacity: 0.8; font-size: 0.82rem; font-weight: normal; letter-spacing: -0.01em;">
+                Martina en Concert — GroundControl Paris, 19 Avril 2025.
+              </Span>
+            </div>
+          </div>
+        </div>
+
+        <div class="news-item">
+          <div class="news-header">
+            <div class="date">09-03-25</div>
+            <div class="title">
+              <a href="#" class="toggle" data-type="video" data-src="https://www.youtube.com/embed/_eFUoZlv1Vk">Martina & VonEvrec pour 2025.</a>
+            </div>
+          </div>
+          <div class="content"></div>
+        </div>
+
+        <div class="news-item">
+          <div class="news-header">
+            <div class="date">08-02-25</div>
+            <div class="title">
+              <a href="#" class="toggle" data-type="image" data-src="martinaonthestageatishadayv2.jpg">ISHA by Martina.</a>
+            </div>
+          </div>
+          <div class="content"></div>
+        </div>
+
+        <div class="news-item">
+          <div class="news-header">
+            <div class="date">05-02-25</div>
+            <div class="title">
+              <a href="#" class="toggle" data-type="image" data-src="expressioncover.jpg">EP par Dana N'kassa en préparation.</a>
+            </div>
+          </div>
+          <div class="content"></div>
+        </div>
+
+        <div class="news-item">
+          <div class="news-header">
+            <div class="date">02-02-25</div>
+            <div class="title">
+              <a href="#" class="toggle" data-type="video" data-src="https://player.vimeo.com/video/1074192584?h=0a919c8a46&autoplay=1">Dana N'kassa & VonEvrec pour 2025.</a>
+            </div>
+          </div>
+          <div class="content"></div>
+        </div>
+
+        <div class="news-item">
+          <div class="news-header">
+            <div class="date">??-??-25</div>
+            <div class="title">
+              <a href="#" class="toggle" data-type="text">Bienvenue chez VonEvrec : ouverture prochaine.</a>
+            </div>
+          </div>
+          <div class="content"><p>...Merci de patienter.</p></div>
+        </div>
+
+      </div>
+    </div>
+
+    <footer>© VonEvrec</footer>
+
+    <script>
+      document.querySelectorAll('.toggle').forEach(link => {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          const parent = this.closest('.news-item');
+          const content = parent.querySelector('.content');
+          const isOpen = content.classList.contains('open');
+
+          if (!isOpen) {
+            const type = this.dataset.type;
+            const src = this.dataset.src;
+
+            if (type === 'video') {
+              // S'il s'agit d'une vidéo Vimeo
+              if (src.includes('vimeo.com')) {
+                // Assurons-nous que l'autoplay est bien activé pour Vimeo
+                const vimeoSrc = src.includes('?') ? 
+                  src + '&autoplay=1&muted=0' : 
+                  src + '?autoplay=1&muted=0';
+                content.innerHTML = `<iframe src="${vimeoSrc}" allowfullscreen allow="autoplay; fullscreen"></iframe>`;
+              } else {
+                // Pour les autres vidéos (YouTube, etc.)
+                content.innerHTML = `<iframe src="${src}?autoplay=1" allowfullscreen allow="autoplay; fullscreen"></iframe>`;
+              }
+            } else if (type === 'image') {
+              content.innerHTML = `<img src="${src}" alt="media">`;
+            } else if (type === 'text') {
+              content.innerHTML = parent.querySelector('.content').innerHTML;
+            }
+
+            // Ajouter un petit délai pour l'animation
+            setTimeout(() => {
+              content.classList.add('open');
+            }, 50);
+          } else {
+            content.classList.remove('open');
+            setTimeout(() => {
+              content.innerHTML = '';
+            }, 500);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
